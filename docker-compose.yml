@@ -1,0 +1,20 @@
+# itk-version: 3.2.0
+version: "3.8"
+
+networks:
+  frontend:
+    external: true
+  app:
+    driver: bridge
+    internal: false
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.8.2-unprivileged
+    networks:
+      - app
+    ports:
+      - '6333'
+      - '6334'
+    volumes:
+      - ./qdrant_storage:/qdrant/storage:rw
