@@ -1,0 +1,33 @@
+networks:
+  frontend:
+    external: true
+  qdrantnet:
+    external: true
+  app:
+    driver: bridge
+    internal: false
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.8.2-unprivileged
+    networks:
+      - frontend
+      - app
+      - qdrantnet
+    ports:
+      - '6333'
+      - '6334'
+    environment:
+      - "QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY}"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage:rw
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.entrypoints=web"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=websecure"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=6333"
