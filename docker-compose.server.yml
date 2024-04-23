@@ -10,6 +10,7 @@ networks:
 services:
   qdrant:
     image: qdrant/qdrant:v1.8.2-unprivileged
+    restart: unless-stopped
     networks:
       - frontend
       - app
